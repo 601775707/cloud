@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+@Deprecated
+// 修改了
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

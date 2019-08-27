@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jt.order.mapper.OrderMapper">
+	
+	<!--转义标签
+		<![cdata[任意的xml文件]]>
+	  -->
+	<update id="updatestatus">
+		<![CDATA[update tb_order set status = 6,updated = now() where status = 1 and 
+		created < #{agodate}]]>
+	</update>
+	
+	
+	<!--利用mybatis实现关联查询,并且实现关联对象的封装
+		ordershipping ordershipping; 		 一对一
+		private list<orderitem> orderitems;  一对多封装  
+	  -->
+	  
+	 <select id="selectByOrderId" resultMap="orderRM">
+	 	select * from tb_order where order_id = #{orderid}
+	 </select>
+	 
+	 <!--进行order对象的封装
+	 	type:查询的结果封装为什么对象
+	 	id:resultmap中的表示
+	 	automapping="true" 可以为数据实现自动的映射
+	 	要求字段名称和属性名称必须满足驼峰映射规则
+	 	
+	 	column=userId   ======>  userId
+	 	
+	   -->
+	 <resultMap type="Order" id="orderRM" autoMapping="true">
+	 	<!--主键  -->
+	 	<id column="order_id" property="orderId"/>
+	 	
+	 	<!--将order对象与ordershipping进行数据封装  一对一-->
+	 	<association property="orderShipping" javaType="OrderShipping"
+	 	column="order_id" select="findOrderShipping"/>
+	 	
+	 	<!--关联查询orderitems数据  -->
+	 	<collection property="orderItems" ofType="OrderItem"
+	 	column="order_id" select="findOrderItems"/>
+	 </resultMap>
+	
+	
+	<!--查询ordershipping数据 
+		如果mybatis传参只有一个数据 不包含对象 #{任意值都可以}
+	 -->
+	<select id="findOrderShipping" resultType="OrderShipping">
+		select * from tb_order_shipping where order_id = #{orderId}
+	</select>
+	
+	<!--根据orderid实现一对多查询  -->
+	<select id="findOrderItems" resultType="OrderItem">
+		select * from tb_order_item where order_id = #{orderid}
+	</select>
+	
+</mapper>
